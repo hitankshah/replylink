@@ -1,0 +1,366 @@
+// ReplyLink - Complete Prisma Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// AUTHENTICATION & USER MANAGEMENT
+// ========================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  avatar        String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  subscription   Subscription?
+  linkPages      LinkPage[]
+  socialAccounts SocialAccount[]
+  rules          Rule[]
+  workspaces     WorkspaceMember[]
+  sessions       Session[]
+  passwordResets PasswordReset[]
+  apiTokens      ApiToken[]
+  monthlyUsage   MonthlyUsage[]
+
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ========================================
+// SUBSCRIPTION & BILLING
+// ========================================
+
+enum PlanType {
+  FREE
+  STARTER
+  PRO
+  AGENCY
+}
+
+model Subscription {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  planType           PlanType  @default(FREE)
+  stripeCustomerId   String?   @unique
+  stripeSubscriptionId String? @unique
+  stripePriceId      String?
+  status             String    @default("active") // active, canceled, past_due
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+}
+
+model MonthlyUsage {
+  id              String   @id @default(cuid())
+  userId          String
+  year            Int
+  month           Int
+  repliesSent     Int      @default(0)
+  pageViews       Int      @default(0)
+  buttonClicks    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, month])
+  @@index([userId])
+}
+
+// ========================================
+// LINK-IN-BIO PAGES
+// ========================================
+
+model LinkPage {
+  id          String   @id @default(cuid())
+  userId      String
+  username    String   @unique
+  title       String
+  bio         String?
+  avatar      String?
+  theme       Json?    // Custom theme colors, fonts, etc.
+  isActive    Boolean  @default(true)
+  customDomain String? @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  buttons LinkButton[]
+  views   PageView[]
+
+  @@index([userId])
+  @@index([username])
+}
+
+enum ButtonType {
+  URL
+  WHATSAPP
+  CALL
+  EMAIL
+  INSTAGRAM
+  FACEBOOK
+  TWITTER
+  LINKEDIN
+  CUSTOM
+}
+
+model LinkButton {
+  id        String     @id @default(cuid())
+  pageId    String
+  type      ButtonType
+  label     String
+  value     String // URL, phone number, email, etc.
+  icon      String?
+  order     Int        @default(0)
+  isActive  Boolean    @default(true)
+  style     Json?      // Custom button styling
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  page   LinkPage      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  clicks ButtonClick[]
+
+  @@index([pageId])
+}
+
+// ========================================
+// SOCIAL ACCOUNT INTEGRATIONS
+// ========================================
+
+enum PlatformType {
+  INSTAGRAM
+  FACEBOOK
+  WHATSAPP
+}
+
+model SocialAccount {
+  id             String       @id @default(cuid())
+  userId         String
+  platform       PlatformType
+  platformUserId String
+  username       String?
+  accessToken    String       @db.Text // Encrypted
+  refreshToken   String?      @db.Text // Encrypted
+  tokenExpiresAt DateTime?
+  pageId         String? // For Facebook Pages
+  phoneNumberId  String? // For WhatsApp Cloud API
+  webhookVerified Boolean     @default(false)
+  isActive       Boolean      @default(true)
+  metadata       Json? // Additional platform-specific data
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rules             Rule[]
+  ruleExecutionLogs RuleExecutionLog[]
+
+  @@unique([userId, platform, platformUserId])
+  @@index([userId])
+  @@index([platform])
+}
+
+// ========================================
+// AUTO-REPLY RULES ENGINE
+// ========================================
+
+enum RuleTriggerType {
+  COMMENT_KEYWORD
+  DM_KEYWORD
+  FIRST_TIME_DM
+  OUT_OF_HOURS
+  MENTION
+  STORY_REPLY
+}
+
+enum RuleActionType {
+  REPLY_COMMENT
+  SEND_DM
+  SEND_WHATSAPP
+  SEND_EMAIL
+  WEBHOOK
+}
+
+model Rule {
+  id          String            @id @default(cuid())
+  userId      String
+  accountId   String
+  name        String
+  description String?
+  triggerType RuleTriggerType
+  triggerConfig Json // Keywords, conditions, time ranges, etc.
+  actionType  RuleActionType
+  actionConfig Json // Reply message, template, etc.
+  isActive    Boolean           @default(true)
+  priority    Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account           SocialAccount      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  executionLogs     RuleExecutionLog[]
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([isActive])
+}
+
+model RuleExecutionLog {
+  id              String        @id @default(cuid())
+  ruleId          String
+  accountId       String
+  triggerData     Json // Original message/comment data
+  actionTaken     String
+  success         Boolean
+  errorMessage    String?
+  responseData    Json? // API response
+  executedAt      DateTime      @default(now())
+
+  rule    Rule          @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  account SocialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@index([accountId])
+  @@index([executedAt])
+}
+
+// ========================================
+// ANALYTICS
+// ========================================
+
+model PageView {
+  id          String   @id @default(cuid())
+  pageId      String
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  country     String?
+  city        String?
+  device      String?
+  timestamp   DateTime @default(now())
+
+  page LinkPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@index([timestamp])
+}
+
+model ButtonClick {
+  id        String   @id @default(cuid())
+  buttonId  String
+  ipAddress String?
+  userAgent String?
+  referrer  String?
+  country   String?
+  city      String?
+  device    String?
+  timestamp DateTime @default(now())
+
+  button LinkButton @relation(fields: [buttonId], references: [id], onDelete: Cascade)
+
+  @@index([buttonId])
+  @@index([timestamp])
+}
+
+// ========================================
+// WORKSPACE & TEAM (AGENCY PLAN)
+// ========================================
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  ownerId     String
+  logo        String?
+  customBranding Json? // White-label settings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members WorkspaceMember[]
+
+  @@index([ownerId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model WorkspaceMember {
+  id          String     @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        MemberRole @default(MEMBER)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+// ========================================
+// API TOKENS
+// ========================================
+
+model ApiToken {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  token       String    @unique
+  permissions Json? // Scope of access
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
