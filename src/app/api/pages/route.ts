@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/auth"
 import { createPageSchema } from "@/lib/validators/pages"
+import { checkPageLimit, getUpgradeUrl } from "@/lib/middleware/planEnforcement"
 import { z } from "zod"
 
 export async function GET(req: NextRequest) {
@@ -62,6 +63,18 @@ export async function POST(req: NextRequest) {
 
     // Validate input
     const validatedData = createPageSchema.parse(body)
+
+    // Check page limit
+    const pageLimit = await checkPageLimit(user.id)
+    if (pageLimit.exceeded) {
+      return NextResponse.json(
+        { 
+          error: "You have reached your page limit",
+          upgradeUrl: getUpgradeUrl('pages')
+        },
+        { status: 402 } // 402 Payment Required
+      )
+    }
 
     // Check username uniqueness
     const existingPage = await prisma.linkPage.findUnique({
