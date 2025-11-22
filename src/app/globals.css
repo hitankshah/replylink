@@ -69,6 +69,14 @@
     animation: slideUp 0.5s ease-out;
   }
 
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -91,32 +99,30 @@
     }
   }
 
-  .glass-effect {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
   }
 
-  .glass-card {
-    @apply bg-slate-900/50 backdrop-blur-md border border-slate-800 hover:border-slate-700 transition-all duration-300;
-  }
+  @keyframes pulseGlow {
 
-  .gradient-bg {
-    background: radial-gradient(circle at center, rgba(124, 58, 237, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-  }
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
-  }
-
-  .bg-grid-pattern {
-    background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  }
-
-  .shimmer-button {
-    background: linear-gradient(110deg, #000103 45%, #1e2631 55%, #000103);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite linear;
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
   }
 
   @keyframes shimmer {
@@ -127,6 +133,35 @@
     100% {
       background-position: -200% 0;
     }
+  }
+
+  .glass-effect {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-card {
+    @apply bg-slate-900/50 backdrop-blur-md border border-slate-800 hover:border-slate-700 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10;
+  }
+
+  .gradient-bg {
+    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400;
+  }
+
+  .bg-grid-pattern {
+    background-size: 50px 50px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  }
+
+  .shimmer-button {
+    background: linear-gradient(110deg, #0f172a 45%, #1e293b 55%, #0f172a);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear;
   }
 }
 

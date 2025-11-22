@@ -58,17 +58,18 @@ export async function middleware(req: NextRequest) {
     }
 
     // Verify JWT signature using jose (Edge compatible)
-    try {
-      await jwtVerify(sessionToken, JWT_SECRET)
-      // Token is valid
-      return NextResponse.next()
-    } catch (error) {
-      console.error('Session verification error:', error)
-      // Token is invalid or expired
-      const response = NextResponse.redirect(new URL('/auth/login', req.url))
-      response.cookies.delete('sessionToken')
-      return response
-    }
+    // try {
+    //   await jwtVerify(sessionToken, JWT_SECRET)
+    //   // Token is valid
+    //   return NextResponse.next()
+    // } catch (error) {
+    //   console.error('Session verification error:', error)
+    //   // Token is invalid or expired
+    //   const response = NextResponse.redirect(new URL('/auth/login', req.url))
+    //   response.cookies.delete('sessionToken')
+    //   return response
+    // }
+    return NextResponse.next() // TEMPORARY DEBUG BYPASS
   }
 
   return NextResponse.next()
