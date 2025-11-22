@@ -1,155 +1,198 @@
 import { ReplyJobData } from '@/lib/queues'
+import { NormalizedEvent } from '@/integrations/social/adapter'
+import redis from '@/lib/redis'
 import { prisma } from '@/lib/prisma'
 import { triggerRealtimeEvent, getUserChannel, PUSHER_EVENTS } from '@/lib/pusher'
+import { checkReplyLimit } from '@/lib/middleware/planEnforcement'
+import { getAdapter } from '@/integrations/social/factory'
+import { RuleEngine } from '@/services/ruleEngine'
+import crypto from 'crypto'
+
+interface ExponentialBackoff {
+  delayMs: number
+  maxRetries: number
+  currentAttempt: number
+}
 
 export async function processReply(data: ReplyJobData) {
-    try {
-        const { ruleId, accountId, triggerData, actionConfig } = data
+    const backoff: ExponentialBackoff = {
+        delayMs: 1000,
+        maxRetries: 3,
+        currentAttempt: 0,
+    }
 
-        // 1. Get rule and account details
-        const [rule, account] = await Promise.all([
-            prisma.rule.findUnique({ where: { id: ruleId } }),
-            prisma.socialAccount.findUnique({ where: { id: accountId } }),
-        ])
+    while (backoff.currentAttempt <= backoff.maxRetries) {
+        try {
+            const { ruleId, socialAccountId, event, renderedMessage, actionConfig } = data
 
-        if (!rule || !account) {
-            throw new Error('Rule or account not found')
-        }
+            // 1. Get rule and account details
+            const [rule, account] = await Promise.all([
+                prisma.rule.findUnique({ where: { id: ruleId } }),
+                prisma.socialAccount.findUnique({ where: { id: socialAccountId } }),
+            ])
 
-        // 2. Send reply based on platform
-        let response
-        switch (triggerData.platform) {
-            case 'INSTAGRAM':
-                response = await sendInstagramReply(account, triggerData, actionConfig)
-                break
-            case 'FACEBOOK':
-                response = await sendFacebookReply(account, triggerData, actionConfig)
-                break
-            case 'WHATSAPP':
-                response = await sendWhatsAppMessage(account, triggerData, actionConfig)
-                break
-            default:
-                throw new Error(`Unsupported platform: ${triggerData.platform}`)
-        }
+            if (!rule || !account) {
+                throw new Error('Rule or account not found')
+            }
 
-        // 3. Log execution
-        await prisma.ruleExecutionLog.create({
-            data: {
-                ruleId,
-                accountId,
-                triggerData: triggerData as any,
-                actionTaken: actionConfig.type,
-                success: true,
-                responseData: response as any,
-            },
-        })
+            // 2. Check monthly reply limit
+            const replyLimit = await checkReplyLimit(account.userId)
+            if (replyLimit.exceeded) {
+                console.warn(
+                    `[Reply Processor] Monthly reply limit exceeded for user ${account.userId}. ` +
+                    `Current: ${replyLimit.current}/${replyLimit.limit}`
+                )
+                throw new Error(
+                    `Monthly reply limit exceeded (${replyLimit.current}/${replyLimit.limit}). ` +
+                    `Upgrade your plan to send more replies.`
+                )
+            }
 
-        // 4. Update monthly usage
-        const now = new Date()
-        await prisma.monthlyUsage.upsert({
-            where: {
-                userId_year_month: {
+            // 3. Get platform adapter
+            const adapter = getAdapter(event.platform)
+            if (!adapter) {
+                throw new Error(`Unsupported platform: ${event.platform}`)
+            }
+
+            // 4. Decrypt account token
+            const decryptedToken = decryptToken(account.accessToken, account.tokenIv)
+
+            // 5. Send reply based on action type
+            let response: any
+            const actionType = (actionConfig as any).action || 'REPLY'
+
+            switch (actionType) {
+                case 'REPLY':
+                    response = await adapter.sendReply(
+                        decryptedToken,
+                        event.messageId || event.metadata?.messageId,
+                        renderedMessage
+                    )
+                    break
+
+                case 'DIRECT_MESSAGE':
+                    response = await adapter.sendDirectMessage(
+                        decryptedToken,
+                        event.senderId,
+                        renderedMessage
+                    )
+                    break
+
+                case 'LINK_SHARE':
+                    const linkUrl = (actionConfig as any).linkUrl || 'https://link.page'
+                    response = await adapter.sendReply(
+                        decryptedToken,
+                        event.messageId || event.metadata?.messageId,
+                        `${renderedMessage}\n\n${linkUrl}`
+                    )
+                    break
+
+                default:
+                    throw new Error(`Unknown action type: ${actionType}`)
+            }
+
+            // 6. Execute rule action via engine
+            await RuleEngine.executeRuleAction(rule, event, renderedMessage)
+
+            // 7. Update monthly usage
+            const now = new Date()
+            await prisma.monthlyUsage.upsert({
+                where: {
+                    userId_year_month: {
+                        userId: account.userId,
+                        year: now.getFullYear(),
+                        month: now.getMonth() + 1,
+                    },
+                },
+                update: {
+                    repliesSent: { increment: 1 },
+                },
+                create: {
                     userId: account.userId,
                     year: now.getFullYear(),
                     month: now.getMonth() + 1,
+                    repliesSent: 1,
                 },
-            },
-            update: {
-                repliesSent: { increment: 1 },
-            },
-            create: {
-                userId: account.userId,
-                year: now.getFullYear(),
-                month: now.getMonth() + 1,
-                repliesSent: 1,
-            },
-        })
+            })
 
-        // 5. Trigger real-time event
-        await triggerRealtimeEvent(
-            getUserChannel(account.userId),
-            PUSHER_EVENTS.REPLY_SENT,
-            {
-                platform: triggerData.platform,
-                ruleName: rule.name,
-                success: true,
+            // 8. Trigger real-time event
+            await triggerRealtimeEvent(
+                getUserChannel(account.userId),
+                PUSHER_EVENTS.REPLY_SENT,
+                {
+                    platform: event.platform,
+                    ruleName: rule.name,
+                    success: true,
+                }
+            )
+
+            return { success: true, response }
+        } catch (error) {
+            backoff.currentAttempt++
+
+            // Determine if error is retryable
+            const isRetryable = isRetryableError(error)
+            if (!isRetryable || backoff.currentAttempt > backoff.maxRetries) {
+                console.error(`[Reply Processor] Final error after ${backoff.currentAttempt} attempts:`, error)
+
+                // Log failed execution
+                await prisma.ruleExecutionLog.create({
+                    data: {
+                        ruleId: data.ruleId,
+                        eventType: (data.event as NormalizedEvent).type,
+                        senderId: (data.event as NormalizedEvent).senderId,
+                        result: 'FAILED',
+                    },
+                })
+
+                throw error
             }
-        )
 
-        return { success: true, response }
-    } catch (error) {
-        console.error('Reply processing error:', error)
+            // Exponential backoff: 1s, 2s, 4s
+            const delayMs = backoff.delayMs * Math.pow(2, backoff.currentAttempt - 1)
+            console.log(
+                `[Reply Processor] Retrying after ${delayMs}ms (attempt ${backoff.currentAttempt}/${backoff.maxRetries})`
+            )
 
-        // Log failed execution
-        await prisma.ruleExecutionLog.create({
-            data: {
-                ruleId: data.ruleId,
-                accountId: data.accountId,
-                triggerData: data.triggerData as any,
-                actionTaken: data.actionConfig.type,
-                success: false,
-                errorMessage: error instanceof Error ? error.message : 'Unknown error',
-            },
-        })
-
-        throw error
+            await new Promise((resolve) => setTimeout(resolve, delayMs))
+        }
     }
 }
 
-async function sendInstagramReply(
-    account: any,
-    triggerData: any,
-    actionConfig: any
-) {
-    // TODO: Implement Instagram Graph API reply
-    console.log('Sending Instagram reply:', {
-        accountId: account.id,
-        messageId: triggerData.messageId,
-        message: actionConfig.message,
-    })
+/**
+ * Determine if error is retryable
+ */
+function isRetryableError(error: any): boolean {
+    const message = error?.message || ''
+    const code = error?.code || ''
 
-    // Simulate API call
-    return {
-        platform: 'instagram',
-        messageId: triggerData.messageId,
-        sentAt: new Date(),
+    // Rate limit errors are retryable
+    if (code === 'RATE_LIMIT' || message.includes('rate limit')) {
+        return true
     }
+
+    // Timeout errors are retryable
+    if (code === 'TIMEOUT' || message.includes('timeout')) {
+        return true
+    }
+
+    // Network errors are retryable
+    if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
+        return true
+    }
+
+    return false
 }
 
-async function sendFacebookReply(
-    account: any,
-    triggerData: any,
-    actionConfig: any
-) {
-    // TODO: Implement Facebook Graph API reply
-    console.log('Sending Facebook reply:', {
-        accountId: account.id,
-        messageId: triggerData.messageId,
-        message: actionConfig.message,
-    })
-
-    return {
-        platform: 'facebook',
-        messageId: triggerData.messageId,
-        sentAt: new Date(),
-    }
+/**
+ * Decrypt token using stored IV
+ */
+function decryptToken(encryptedToken: string, tokenIv: string): string {
+    const encryptionKey = process.env.ENCRYPTION_KEY!
+    const iv = Buffer.from(tokenIv, 'hex')
+    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), iv)
+    let decrypted = decipher.update(encryptedToken, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    return decrypted
 }
 
-async function sendWhatsAppMessage(
-    account: any,
-    triggerData: any,
-    actionConfig: any
-) {
-    // TODO: Implement WhatsApp Cloud API message
-    console.log('Sending WhatsApp message:', {
-        accountId: account.id,
-        messageId: triggerData.messageId,
-        message: actionConfig.message,
-    })
-
-    return {
-        platform: 'whatsapp',
-        messageId: triggerData.messageId,
-        sentAt: new Date(),
-    }
-}
