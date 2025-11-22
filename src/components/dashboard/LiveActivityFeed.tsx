@@ -27,19 +27,22 @@ export default function LiveActivityFeed() {
         try {
             const response = await fetch('/api/activity/recent')
             const result = await response.json()
-            setActivities(result.data || generateDemoData())
+            setActivities(result.data || [])
         } catch (error) {
             console.error('Failed to fetch activities:', error)
-            setActivities(generateDemoData())
+            setActivities([])
         } finally {
             setLoading(false)
         }
     }
 
     function setupRealtimeUpdates() {
-        const userId = 'demo-user-123' // Get from auth context
+        // Get userId from auth context/token (you may need to pass this as a prop)
         const pusher = getPusherClient()
-        const channel = pusher.subscribe(getUserChannel(userId))
+        // For now, we'll skip Pusher setup if userId is not available
+        // TODO: Get actual userId from auth context or pass as prop
+        
+        const channel = pusher.subscribe(getUserChannel('current-user'))
 
         channel.bind(PUSHER_EVENTS.PAGE_VIEW, (data: any) => {
             addActivity({
@@ -87,44 +90,6 @@ export default function LiveActivityFeed() {
 
     function addActivity(activity: Activity) {
         setActivities((prev) => [activity, ...prev].slice(0, 20))
-    }
-
-    function generateDemoData(): Activity[] {
-        return [
-            {
-                id: '1',
-                type: 'reply_sent',
-                message: 'Auto-replied to Instagram comment',
-                platform: 'INSTAGRAM',
-                timestamp: new Date(Date.now() - 2 * 60 * 1000),
-            },
-            {
-                id: '2',
-                type: 'button_click',
-                message: 'Visitor clicked "WhatsApp" button',
-                timestamp: new Date(Date.now() - 5 * 60 * 1000),
-            },
-            {
-                id: '3',
-                type: 'page_view',
-                message: 'New visitor viewed your link page',
-                timestamp: new Date(Date.now() - 8 * 60 * 1000),
-            },
-            {
-                id: '4',
-                type: 'rule_triggered',
-                message: 'Rule "DM Keywords" triggered',
-                platform: 'FACEBOOK',
-                timestamp: new Date(Date.now() - 12 * 60 * 1000),
-            },
-            {
-                id: '5',
-                type: 'reply_sent',
-                message: 'Auto-replied to WhatsApp message',
-                platform: 'WHATSAPP',
-                timestamp: new Date(Date.now() - 15 * 60 * 1000),
-            },
-        ]
     }
 
     function getActivityIcon(type: string) {

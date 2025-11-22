@@ -28,24 +28,13 @@ export default function PageViewsChart({ days }: PageViewsChartProps) {
         try {
             const response = await fetch(`/api/analytics/page-views?days=${days}`)
             const result = await response.json()
-            setData(result.data || generateDemoData())
+            setData(result.data || [])
         } catch (error) {
             console.error('Failed to fetch page views:', error)
-            setData(generateDemoData())
+            setData([])
         } finally {
             setLoading(false)
         }
-    }
-
-    function generateDemoData() {
-        const labels = days === 7
-            ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-            : Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`)
-
-        return labels.map((label) => ({
-            name: label,
-            views: Math.floor(Math.random() * 500) + 100,
-        }))
     }
 
     if (loading) {

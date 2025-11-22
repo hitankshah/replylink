@@ -4,21 +4,70 @@ import { getCurrentUser } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
     try {
-        // Get current user (in production, use proper auth)
+        const user = await getCurrentUser(request)
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const searchParams = request.nextUrl.searchParams
         const days = parseInt(searchParams.get('days') || '7')
 
-        // For demo purposes, return mock data
-        // In production, fetch from database
         const now = new Date()
         const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
 
-        // TODO: Replace with actual database queries
+        // Fetch real data from database
+        const [pageViewsData, buttonClicksData, monthlyUsageData] = await Promise.all([
+            // Page views
+            prisma.pageView.aggregate({
+                where: {
+                    linkPage: {
+                        userId: user.id,
+                    },
+                    createdAt: {
+                        gte: startDate,
+                        lte: now,
+                    },
+                },
+                _count: true,
+            }),
+            // Button clicks
+            prisma.buttonClick.aggregate({
+                where: {
+                    button: {
+                        linkPage: {
+                            userId: user.id,
+                        },
+                    },
+                    createdAt: {
+                        gte: startDate,
+                        lte: now,
+                    },
+                },
+                _count: true,
+            }),
+            // Monthly usage for remaining replies
+            prisma.monthlyUsage.findFirst({
+                where: {
+                    userId: user.id,
+                    month: new Date(now.getFullYear(), now.getMonth(), 1),
+                },
+            }),
+        ])
+
+        // Calculate remaining replies
+        const repliesSent = monthlyUsageData?.repliesUsed || 0
+        const monthlyLimit = user.subscription?.plan === 'ENTERPRISE' 
+            ? 100000 
+            : user.subscription?.plan === 'PRO' 
+            ? 50000 
+            : 1000
+        const remainingReplies = Math.max(0, monthlyLimit - repliesSent)
+
         const stats = {
-            pageViews: Math.floor(Math.random() * 5000) + 1000,
-            buttonClicks: Math.floor(Math.random() * 2000) + 500,
-            repliesSent: Math.floor(Math.random() * 1000) + 200,
-            remainingReplies: 15000 - Math.floor(Math.random() * 1000),
+            pageViews: pageViewsData._count,
+            buttonClicks: buttonClicksData._count,
+            repliesSent,
+            remainingReplies,
         }
 
         return NextResponse.json(stats)

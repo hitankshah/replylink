@@ -18,21 +18,13 @@ export default function ReplyUsageChart() {
         try {
             const response = await fetch('/api/analytics/reply-usage')
             const result = await response.json()
-            setData(result.data || generateDemoData())
+            setData(result.data || [])
         } catch (error) {
             console.error('Failed to fetch reply usage:', error)
-            setData(generateDemoData())
+            setData([])
         } finally {
             setLoading(false)
         }
-    }
-
-    function generateDemoData() {
-        return [
-            { name: 'Instagram', value: 456 },
-            { name: 'Facebook', value: 289 },
-            { name: 'WhatsApp', value: 178 },
-        ]
     }
 
     if (loading) {

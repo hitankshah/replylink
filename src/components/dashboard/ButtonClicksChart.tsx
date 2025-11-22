@@ -28,23 +28,13 @@ export default function ButtonClicksChart({ days }: ButtonClicksChartProps) {
         try {
             const response = await fetch(`/api/analytics/button-clicks?days=${days}`)
             const result = await response.json()
-            setData(result.data || generateDemoData())
+            setData(result.data || [])
         } catch (error) {
             console.error('Failed to fetch button clicks:', error)
-            setData(generateDemoData())
+            setData([])
         } finally {
             setLoading(false)
         }
-    }
-
-    function generateDemoData() {
-        return [
-            { name: 'Instagram', clicks: 245 },
-            { name: 'Website', clicks: 189 },
-            { name: 'WhatsApp', clicks: 167 },
-            { name: 'Email', clicks: 134 },
-            { name: 'Other', clicks: 98 },
-        ]
     }
 
     if (loading) {

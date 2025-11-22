@@ -25,42 +25,44 @@ export default function PlatformStats() {
         try {
             const response = await fetch('/api/analytics/platform-stats')
             const result = await response.json()
-            setStats(result.data || generateDemoData())
+            const enriched = result.data?.map((stat: any) => ({
+                ...stat,
+                icon: getPlatformIcon(stat.platform),
+                color: getPlatformColor(stat.platform),
+            })) || []
+            setStats(enriched)
         } catch (error) {
             console.error('Failed to fetch platform stats:', error)
-            setStats(generateDemoData())
+            setStats([])
         } finally {
             setLoading(false)
         }
     }
 
-    function generateDemoData(): PlatformStat[] {
-        return [
-            {
-                platform: 'Instagram',
-                icon: Instagram,
-                color: 'bg-pink-500',
-                accounts: 3,
-                replies: 456,
-                topRule: 'DM Auto-Reply',
-            },
-            {
-                platform: 'Facebook',
-                icon: Facebook,
-                color: 'bg-blue-600',
-                accounts: 2,
-                replies: 289,
-                topRule: 'Comment Keywords',
-            },
-            {
-                platform: 'WhatsApp',
-                icon: MessageCircle,
-                color: 'bg-green-500',
-                accounts: 1,
-                replies: 178,
-                topRule: 'Out of Hours',
-            },
-        ]
+    function getPlatformIcon(platform: string) {
+        switch (platform) {
+            case 'Instagram':
+                return Instagram
+            case 'Facebook':
+                return Facebook
+            case 'WhatsApp':
+                return MessageCircle
+            default:
+                return TrendingUp
+        }
+    }
+
+    function getPlatformColor(platform: string) {
+        switch (platform) {
+            case 'Instagram':
+                return 'bg-pink-500'
+            case 'Facebook':
+                return 'bg-blue-600'
+            case 'WhatsApp':
+                return 'bg-green-500'
+            default:
+                return 'bg-gray-500'
+        }
     }
 
     if (loading) {
