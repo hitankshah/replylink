@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { jwtVerify } from 'jose'
 
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = [
@@ -20,6 +20,10 @@ const DYNAMIC_ROUTES = [
 const WEBHOOK_ROUTES = [
   /^\/api\/webhooks\/.*/, // Webhook endpoints
 ]
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-secret-key'
+)
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
@@ -53,21 +57,17 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/auth/login', req.url))
     }
 
-    // Verify session exists in database
+    // Verify JWT signature using jose (Edge compatible)
     try {
-      const session = await prisma.session.findUnique({
-        where: { sessionToken },
-      })
-
-      if (!session || session.expires < new Date()) {
-        // Session expired or not found
-        const response = NextResponse.redirect(new URL('/auth/login', req.url))
-        response.cookies.delete('sessionToken')
-        return response
-      }
+      await jwtVerify(sessionToken, JWT_SECRET)
+      // Token is valid
+      return NextResponse.next()
     } catch (error) {
       console.error('Session verification error:', error)
-      return NextResponse.redirect(new URL('/auth/login', req.url))
+      // Token is invalid or expired
+      const response = NextResponse.redirect(new URL('/auth/login', req.url))
+      response.cookies.delete('sessionToken')
+      return response
     }
   }
 
