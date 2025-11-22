@@ -42,6 +42,10 @@ A production-ready SaaS application combining **Link-in-Bio** pages with **Auto-
 - **Payment**: Stripe / Razorpay
 - **APIs**: Meta Graph API (Instagram, Facebook, WhatsApp)
 
+/status - Interactive dashboard with expandable phase details
+/features - Feature matrix by category
+/api-docs - Complete API documentation
+/api/status/phases - JSON API for programmatic access
 ## 📁 Project Structure
 
 ```
