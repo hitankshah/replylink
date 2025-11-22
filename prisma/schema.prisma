@@ -127,9 +127,10 @@ model LinkPage {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  buttons LinkButton[]
-  views   PageView[]
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  buttons    LinkButton[]
+  views      PageView[]
+  shortLinks ShortLink[]
 
   @@index([userId])
   @@index([username])
@@ -160,8 +161,9 @@ model LinkButton {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  page   LinkPage      @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  clicks ButtonClick[]
+  page       LinkPage   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  clicks     ButtonClick[]
+  shortLinks ShortLink[]
 
   @@index([pageId])
 }
@@ -364,4 +366,28 @@ model ApiToken {
 
   @@index([userId])
   @@index([token])
+}
+
+// ========================================
+// SHORT LINKS
+// ========================================
+
+model ShortLink {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  targetUrl     String   @db.Text
+  pageId        String
+  buttonId      String?
+  clicks        Int      @default(0)
+  lastClickedAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  page   LinkPage?    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  button LinkButton?  @relation(fields: [buttonId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([pageId])
+  @@index([buttonId])
+  @@index([createdAt])
 }
