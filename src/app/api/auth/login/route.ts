@@ -2,24 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyPassword, createSession, generateToken } from '@/lib/auth'
 import { verifyTestBypass } from '@/lib/testBypass'
+import { loginSchema } from '@/lib/validators'
+import { validateRequest } from '@/lib/validators/utils'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, rememberMe } = await req.json()
-
-    // Validate input
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = await validateRequest(req, loginSchema)
+    if (!validation.success) {
+      return validation.error
     }
+
+    const { email, password, rememberMe } = validation.data
 
     // Check for test bypass credentials first (for development/testing only)
     const testUser = verifyTestBypass(email, password)
     if (testUser) {
       console.warn(`[TEST BYPASS] Admin login attempt with email: ${email}`)
-      
+
       const token = generateToken({
         userId: testUser.id,
         email: testUser.email,
