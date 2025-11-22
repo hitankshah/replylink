@@ -1,5 +1,6 @@
 import { Queue, Worker, Job } from 'bullmq'
 import redis from '@/lib/redis'
+import { NormalizedEvent } from '@/integrations/social/adapter'
 
 // Queue names
 export const QUEUE_NAMES = {
@@ -21,18 +22,13 @@ const connection = {
 
 export interface ReplyJobData {
     ruleId: string
-    accountId: string
-    triggerData: {
-        platform: 'INSTAGRAM' | 'FACEBOOK' | 'WHATSAPP'
-        messageId: string
-        senderId: string
-        content: string
-        type: 'comment' | 'dm' | 'message'
-    }
+    socialAccountId: string
+    event: NormalizedEvent
+    renderedMessage: string
     actionConfig: {
-        type: 'REPLY_COMMENT' | 'SEND_DM' | 'SEND_WHATSAPP'
+        action: 'REPLY' | 'DIRECT_MESSAGE' | 'LINK_SHARE'
         message: string
-        template?: string
+        linkUrl?: string
     }
 }
 
@@ -85,11 +81,11 @@ export const analyticsQueue = new Queue<AnalyticsJobData>(QUEUE_NAMES.ANALYTICS,
 // WEBHOOK QUEUE - For incoming webhooks
 // ========================================
 
+// We use a simplified version of NormalizedEvent here to avoid circular deps
+// or complex imports. The processor will cast it correctly.
 export interface WebhookJobData {
-    platform: 'INSTAGRAM' | 'FACEBOOK' | 'WHATSAPP'
-    event: string
-    payload: any
-    receivedAt: Date
+    event: any // NormalizedEvent
+    timestamp: string
 }
 
 export const webhookQueue = new Queue<WebhookJobData>(QUEUE_NAMES.WEBHOOK, {
