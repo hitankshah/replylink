@@ -54,6 +54,8 @@ const PAGES = [
   }
 ]
 
+import { PageCreationDialog } from "@/components/pages/PageCreationDialog"
+
 export default function PagesList() {
   return (
     <div className="p-8 max-w-7xl mx-auto min-h-screen bg-[hsl(0,0%,4%)] text-white">
@@ -62,12 +64,7 @@ export default function PagesList() {
           <h1 className="text-3xl font-bold text-white mb-2">My Pages</h1>
           <p className="text-gray-400">Manage your link-in-bio pages and track their performance.</p>
         </div>
-        <Link href="/dashboard/pages/new">
-          <Button className="bg-white text-black hover:bg-gray-100 gap-2 font-medium">
-            <Plus className="w-4 h-4" />
-            Create New Page
-          </Button>
-        </Link>
+        <PageCreationDialog />
       </div>
 
       {/* Filters */}

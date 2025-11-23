@@ -15,6 +15,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { getPusherClient, PUSHER_EVENTS, getUserChannel } from '@/lib/pusher'
+import { DateRangePicker } from '@/components/dashboard/DateRangePicker'
+import { QuickActionsCard } from '@/components/dashboard/QuickActionsCard'
 
 export default function DashboardPage() {
     const router = useRouter()
@@ -112,25 +114,41 @@ export default function DashboardPage() {
         )
     }
 
+    const quickActions = [
+        {
+            title: "Create Link Page",
+            description: "Build a new branded link page",
+            href: "/dashboard/pages/new",
+            icon: BarChart3,
+            gradient: "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
+        },
+        {
+            title: "Setup Auto-Reply",
+            description: "Create automation rules",
+            href: "/dashboard/rules/new",
+            icon: MessageSquare,
+            gradient: "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
+        },
+        {
+            title: "View Analytics",
+            description: "Check your performance",
+            href: "/dashboard/analytics",
+            icon: TrendingUp,
+            gradient: "bg-gradient-to-br from-orange-500/20 to-red-500/20"
+        }
+    ]
+
     return (
         <div className="min-h-screen bg-[hsl(0,0%,4%)] text-white p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold">Dashboard</h1>
                         <p className="text-gray-400 mt-1">Welcome back, {user?.name || 'User'}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <select
-                            value={dateRange}
-                            onChange={(e) => setDateRange(e.target.value)}
-                            className="bg-white/[0.05] border border-white/[0.12] rounded-md px-4 py-2 text-sm text-white focus:outline-none focus:border-white/[0.24]"
-                        >
-                            <option value="7">Last 7 days</option>
-                            <option value="30">Last 30 days</option>
-                            <option value="90">Last 90 days</option>
-                        </select>
+                        <DateRangePicker />
                     </div>
                 </div>
 
@@ -167,25 +185,9 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <QuickActionCard
-                        title="Create Link Page"
-                        description="Build a new branded link page"
-                        href="/dashboard/pages/new"
-                        icon={<BarChart3 className="w-5 h-5" />}
-                    />
-                    <QuickActionCard
-                        title="Setup Auto-Reply"
-                        description="Create automation rules"
-                        href="/dashboard/rules/new"
-                        icon={<MessageSquare className="w-5 h-5" />}
-                    />
-                    <QuickActionCard
-                        title="View Analytics"
-                        description="Check your performance"
-                        href="/dashboard/analytics"
-                        icon={<TrendingUp className="w-5 h-5" />}
-                    />
+                <div>
+                    <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+                    <QuickActionsCard actions={quickActions} />
                 </div>
 
                 {/* Recent Activity */}
@@ -250,28 +252,6 @@ function StatCard({ title, value, icon, trend, subtitle, href }: {
                         {subtitle && <span className="text-sm text-gray-500 ml-2">{subtitle}</span>}
                     </p>
                 </div>
-            </div>
-        </Link>
-    )
-}
-
-function QuickActionCard({ title, description, href, icon }: {
-    title: string
-    description: string
-    href: string
-    icon: React.ReactNode
-}) {
-    return (
-        <Link href={href} className="block group">
-            <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-6 hover:border-white/[0.16] hover:bg-white/[0.05] transition-all">
-                <div className="flex items-start justify-between mb-3">
-                    <div className="p-2 rounded-md bg-white/[0.05] text-blue-500 group-hover:bg-white/[0.08] transition-colors">
-                        {icon}
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
-                </div>
-                <h3 className="font-semibold mb-1">{title}</h3>
-                <p className="text-sm text-gray-400">{description}</p>
             </div>
         </Link>
     )
