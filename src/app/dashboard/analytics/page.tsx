@@ -1,11 +1,16 @@
 'use client'
 
 import React, { useState } from 'react'
-import { BarChart3, TrendingUp, Users, MousePointerClick, Globe, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
+import { TrendingUp, Users, MousePointerClick, Globe, ArrowUpRight, ArrowDownRight, Calendar, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import PageViewsChart from '@/components/dashboard/PageViewsChart'
 import ButtonClicksChart from '@/components/dashboard/ButtonClicksChart'
-import PlatformStats from '@/components/dashboard/PlatformStats'
+import { TopPerformers } from '@/components/analytics/TopPerformers'
+import { RulePerformance } from '@/components/analytics/RulePerformance'
+import { RealTimeIndicator } from '@/components/analytics/RealTimeIndicator'
+import { CustomReportBuilder } from '@/components/analytics/CustomReportBuilder'
+import { ExportButton } from '@/components/analytics/ExportButton'
 
 export default function AnalyticsPage() {
     const [dateRange, setDateRange] = useState('30')
@@ -16,7 +21,10 @@ export default function AnalyticsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Analytics</h1>
+                        <div className="flex items-center gap-3 mb-2">
+                            <h1 className="text-3xl font-bold text-white">Analytics</h1>
+                            <RealTimeIndicator />
+                        </div>
                         <p className="text-gray-400">Detailed insights into your link performance and audience</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -32,9 +40,8 @@ export default function AnalyticsPage() {
                                 <option value="90">Last 90 days</option>
                             </select>
                         </div>
-                        <Button className="bg-white text-black hover:bg-gray-100 font-medium">
-                            Export Report
-                        </Button>
+                        <CustomReportBuilder />
+                        <ExportButton />
                     </div>
                 </div>
 
@@ -70,12 +77,16 @@ export default function AnalyticsPage() {
                     />
                 </div>
 
-                {/* Charts Section */}
+                {/* Main Charts Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-6">Page Views Over Time</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-semibold">Page Views Over Time</h3>
+                            <Link href="/dashboard/analytics/pages/1" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                                View Details <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        </div>
                         <div className="h-[300px]">
-                            {/* Placeholder for chart component - passing mock data or props would be needed in real impl */}
                             <PageViewsChart />
                         </div>
                     </div>
@@ -87,10 +98,19 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
+                {/* Performance & Rules */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <TopPerformers />
+                    <RulePerformance />
+                </div>
+
                 {/* Detailed Stats */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 bg-white/[0.03] border border-white/[0.08] rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-6">Top Locations</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-semibold">Top Locations</h3>
+                            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">View Map</Button>
+                        </div>
                         <div className="space-y-4">
                             <LocationBar country="United States" percentage={45} count="56,231" />
                             <LocationBar country="United Kingdom" percentage={15} count="18,402" />
@@ -100,11 +120,16 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
                     <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-6">Device Breakdown</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-semibold">Social Traffic</h3>
+                            <Link href="/dashboard/analytics/social" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                                Full Report <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        </div>
                         <div className="space-y-6">
-                            <DeviceStat device="Mobile" percentage={68} icon="📱" />
-                            <DeviceStat device="Desktop" percentage={28} icon="💻" />
-                            <DeviceStat device="Tablet" percentage={4} icon="aaa" />
+                            <DeviceStat device="Instagram" percentage={68} icon="Instagram" />
+                            <DeviceStat device="TikTok" percentage={28} icon="TikTok" />
+                            <DeviceStat device="Twitter" percentage={4} icon="Twitter" />
                         </div>
                     </div>
                 </div>
@@ -155,8 +180,8 @@ function DeviceStat({ device, percentage, icon }: { device: string, percentage: 
     return (
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-sm">
-                    {icon === 'aaa' ? <span className="text-xs">Tab</span> : icon}
+                <div className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-sm font-bold text-gray-400">
+                    {icon[0]}
                 </div>
                 <span className="text-gray-300">{device}</span>
             </div>
