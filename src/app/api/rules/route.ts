@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
+import { createRuleSchema } from '@/lib/validators'
+import { validateRequest } from '@/lib/validators/utils'
 
 /**
  * Rules Management API
@@ -111,20 +113,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
-
-    // Validate required fields
-    if (!body.name || !body.accountId || !body.triggerType || !body.actionType) {
-      return NextResponse.json(
-        { error: 'Missing required fields: name, accountId, triggerType, actionType' },
-        { status: 400 }
-      )
+    // Validate request body using Zod
+    const validation = await validateRequest(request, createRuleSchema)
+    if (!validation.success) {
+      return validation.error
     }
+
+    const body = validation.data
 
     // Verify user owns the account
     const account = await prisma.socialAccount.findFirst({
       where: {
-        id: body.accountId,
+        id: body.socialAccountId,
         userId: session.userId,
       },
     })
@@ -136,50 +136,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate trigger and action types
-    const validTriggerTypes = [
-      'COMMENT_KEYWORD',
-      'DM_KEYWORD',
-      'FIRST_TIME_DM',
-      'OUT_OF_HOURS',
-      'MENTION',
-      'STORY_REPLY',
-    ]
-    const validActionTypes = [
-      'REPLY_COMMENT',
-      'SEND_DM',
-      'SEND_WHATSAPP',
-      'SEND_EMAIL',
-      'WEBHOOK',
-    ]
-
-    if (!validTriggerTypes.includes(body.triggerType)) {
-      return NextResponse.json(
-        { error: `Invalid triggerType. Must be one of: ${validTriggerTypes.join(', ')}` },
-        { status: 400 }
-      )
-    }
-
-    if (!validActionTypes.includes(body.actionType)) {
-      return NextResponse.json(
-        { error: `Invalid actionType. Must be one of: ${validActionTypes.join(', ')}` },
-        { status: 400 }
-      )
-    }
-
     // Create rule
     const rule = await prisma.rule.create({
       data: {
         userId: session.userId,
-        accountId: body.accountId,
+        accountId: body.socialAccountId,
         name: body.name,
-        description: body.description,
         triggerType: body.triggerType,
-        triggerConfig: body.triggerConfig || {},
+        triggerConfig: {
+          keywords: body.triggerKeywords ? body.triggerKeywords.split(',').map((k: string) => k.trim()) : [],
+          time: body.triggerTime
+        },
         actionType: body.actionType,
-        actionConfig: body.actionConfig || { message: '' },
-        priority: body.priority || 0,
-        isActive: body.isActive !== false,
+        actionConfig: { message: body.actionMessage },
+        priority: body.priority,
+        isActive: body.enabled,
       },
       include: {
         account: {

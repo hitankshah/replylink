@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
+import { csrfProtection, csrfErrorResponse } from '@/lib/csrf'
+import { authRateLimit, apiRateLimit } from '@/lib/rateLimit'
 
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = [
@@ -32,6 +34,23 @@ export async function middleware(req: NextRequest) {
   // Always allow webhooks
   if (WEBHOOK_ROUTES.some(route => route.test(pathname))) {
     return NextResponse.next()
+  }
+
+  // CSRF Protection for API routes
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
+    const isCsrfValid = await csrfProtection(req)
+    if (!isCsrfValid) {
+      return csrfErrorResponse()
+    }
+  }
+
+  // Rate Limiting
+  if (pathname.startsWith('/api/auth')) {
+    const rateLimit = await authRateLimit(req)
+    if (!rateLimit.allowed) return rateLimit.response
+  } else if (pathname.startsWith('/api/')) {
+    const rateLimit = await apiRateLimit(req)
+    if (!rateLimit.allowed) return rateLimit.response
   }
 
   // Allow public routes without authentication

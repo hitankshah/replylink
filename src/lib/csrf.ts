@@ -73,8 +73,8 @@ export async function csrfProtection(request: NextRequest) {
   }
 
   try {
-    const body = await request.json()
-    const csrfToken = body._csrf || request.headers.get(CSRF_HEADER_NAME)
+    // Check header only to avoid reading body in middleware (which consumes the stream)
+    const csrfToken = request.headers.get(CSRF_HEADER_NAME)
 
     if (!csrfToken) {
       return false // CSRF token missing

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/auth"
-import { createPageSchema } from "@/lib/validators/pages"
+import { createPageSchema } from "@/lib/validators"
 import { checkPageLimit, getUpgradeUrl } from "@/lib/middleware/planEnforcement"
 import { z } from "zod"
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const pageLimit = await checkPageLimit(user.id)
     if (pageLimit.exceeded) {
       return NextResponse.json(
-        { 
+        {
           error: "You have reached your page limit",
           upgradeUrl: getUpgradeUrl('pages')
         },
