@@ -1,33 +1,31 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Zap, BarChart3, Share2, Lock, Smartphone, Users, MessageCircle, Check } from 'lucide-react'
+import { ArrowRight, Zap, BarChart3, Shield, Users, Check, ChevronRight } from 'lucide-react'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[hsl(0,0%,4%)] text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-gray-200 z-50">
+      <nav className="fixed top-0 w-full bg-[hsl(0,0%,4%)]/80 backdrop-blur-xl border-b border-white/[0.08] z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-md flex items-center justify-center">
+              <span className="text-white font-bold text-sm">RL</span>
             </div>
-            <span className="font-black text-xl bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-              ReplyLink
-            </span>
+            <span className="font-bold text-white">ReplyLink</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/functionality" className="text-gray-600 hover:text-gray-900 font-semibold text-sm hidden sm:inline">
+          <div className="flex items-center gap-8">
+            <Link href="/functionality" className="text-gray-400 hover:text-white text-sm font-medium hidden sm:inline transition-colors">
               Features
             </Link>
-            <Link href="/core-features" className="text-gray-600 hover:text-gray-900 font-semibold text-sm hidden sm:inline">
-              About
+            <Link href="/pricing" className="text-gray-400 hover:text-white text-sm font-medium hidden sm:inline transition-colors">
+              Pricing
             </Link>
             <Link
               href="/dashboard"
-              className="bg-gray-900 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors text-sm"
+              className="bg-white text-black px-5 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
             >
               Dashboard
             </Link>
@@ -36,123 +34,115 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-emerald-50/40 to-white">
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-6 inline-block">
-            <div className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Join 10,000+ creators & businesses
+          <div className="mb-6 inline-flex">
+            <div className="bg-white/[0.08] border border-white/[0.12] text-gray-300 px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              Trusted by 10,000+ professionals
             </div>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
-            Your link in bio,
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+            Link-in-bio platform
             <br />
-            <span className="bg-gradient-to-r from-emerald-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent">
-              reimagined
-            </span>
+            <span className="text-gray-400">for professionals</span>
           </h1>
 
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed font-medium">
-            Create beautiful link pages. Automate replies. Track everything. One powerful platform for Instagram, Facebook, WhatsApp, and more.
+          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Create custom link pages, automate social media replies, and track everything.
+            Built for teams that need reliability and scale.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link
               href="/dashboard"
-              className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-emerald-600/40 transition-all transform hover:-translate-y-1 inline-flex items-center justify-center gap-2"
+              className="bg-white text-black px-8 py-3.5 rounded-md font-medium hover:bg-gray-100 transition-all inline-flex items-center justify-center gap-2"
             >
-              Get Started Free <ArrowRight className="w-5 h-5" />
+              Get Started Free
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/functionality"
-              className="bg-gray-100 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-gray-200 transition-colors border-2 border-transparent inline-flex items-center justify-center gap-2"
+              className="bg-white/[0.05] border border-white/[0.12] text-white px-8 py-3.5 rounded-md font-medium hover:bg-white/[0.08] transition-all inline-flex items-center justify-center gap-2"
             >
-              Explore Features
+              View Features
             </Link>
           </div>
 
           {/* Social Proof */}
-          <div className="text-gray-600 text-sm font-semibold">
-            <p className="mb-3">Trusted by creators on 6+ platforms:</p>
+          <div className="text-gray-500 text-sm">
+            <p className="mb-3">Integrated with</p>
             <div className="flex items-center justify-center gap-6 flex-wrap">
-              <span>📱 Instagram</span>
-              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-              <span>📱 Facebook</span>
-              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-              <span>💬 WhatsApp</span>
-              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-              <span>🐦 Twitter</span>
-              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-              <span>🎵 TikTok</span>
-              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-              <span>💼 LinkedIn</span>
+              <span className="text-gray-400">Instagram</span>
+              <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+              <span className="text-gray-400">Facebook</span>
+              <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+              <span className="text-gray-400">WhatsApp</span>
+              <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+              <span className="text-gray-400">Twitter</span>
+              <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+              <span className="text-gray-400">LinkedIn</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Everything creators need
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Everything you need
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A complete suite of tools to manage your link presence, automate engagement, and grow your audience
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Professional tools for link management, automation, and analytics
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: <Share2 className="w-8 h-8" />,
+                icon: <Zap className="w-6 h-6" />,
                 title: 'Link Pages',
-                description: 'Beautiful, customizable link-in-bio pages. Drag-and-drop builder with 10+ templates.',
-                color: 'from-emerald-600 to-emerald-600/60'
+                description: 'Customizable link-in-bio pages with drag-and-drop builder and analytics tracking.',
               },
               {
-                icon: <Zap className="w-8 h-8" />,
+                icon: <BarChart3 className="w-6 h-6" />,
                 title: 'Auto-Replies',
-                description: 'Smart automation for IG, FB & WhatsApp. Set up rules once, save hours daily.',
-                color: 'from-blue-600 to-blue-600/60'
+                description: 'Smart automation for Instagram, Facebook, and WhatsApp to save hours daily.',
               },
               {
-                icon: <BarChart3 className="w-8 h-8" />,
+                icon: <BarChart3 className="w-6 h-6" />,
                 title: 'Analytics',
-                description: 'Real-time tracking. Views, clicks, CTR, device breakdown, referrer sources.',
-                color: 'from-purple-600 to-purple-600/60'
+                description: 'Real-time tracking with views, clicks, CTR, device breakdown, and referrers.',
               },
               {
-                icon: <MessageCircle className="w-8 h-8" />,
-                title: 'QR Codes',
-                description: 'Generate custom branded QR codes. Drive offline traffic back to your links.',
-                color: 'from-pink-600 to-pink-600/60'
+                icon: <Users className="w-6 h-6" />,
+                title: 'Team Collaboration',
+                description: 'Invite team members, assign roles, and manage workspaces efficiently.',
               },
               {
-                icon: <Users className="w-8 h-8" />,
-                title: 'Social Integration',
-                description: 'Connect 6+ platforms. Unified dashboard. Manage everything in one place.',
-                color: 'from-yellow-600 to-yellow-600/60'
-              },
-              {
-                icon: <Lock className="w-8 h-8" />,
+                icon: <Shield className="w-6 h-6" />,
                 title: 'Enterprise Security',
-                description: 'Bank-grade encryption. 2FA. Compliance. Your data is completely safe.',
-                color: 'from-red-600 to-red-600/60'
+                description: 'Bank-grade encryption, 2FA, and compliance. Your data is completely safe.',
+              },
+              {
+                icon: <Zap className="w-6 h-6" />,
+                title: 'API Access',
+                description: 'Integrate ReplyLink with your existing tools via our RESTful API.',
               }
             ].map((feature, idx) => (
               <div
                 key={idx}
-                className="bg-white p-8 rounded-2xl border-2 border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all group hover:-translate-y-1"
+                className="bg-white/[0.03] border border-white/[0.08] p-6 rounded-lg hover:border-white/[0.16] hover:bg-white/[0.05] transition-all group"
               >
-                <div className={`inline-block p-3 rounded-xl bg-gradient-to-br ${feature.color} text-white mb-4 group-hover:scale-110 transition-transform`}>
+                <div className="inline-flex p-2 rounded-md bg-white/[0.05] text-blue-500 mb-4 group-hover:bg-white/[0.08] transition-colors">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -160,20 +150,20 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             {[
-              { number: '10,000+', label: 'Active Creators' },
+              { number: '10,000+', label: 'Active Users' },
               { number: '5M+', label: 'Links Created' },
               { number: '100M+', label: 'Tracked Events' },
               { number: '99.9%', label: 'Uptime' }
             ].map((stat, idx) => (
               <div key={idx}>
-                <p className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                <p className="text-4xl font-bold text-white mb-2">
                   {stat.number}
                 </p>
-                <p className="text-gray-600 font-semibold">{stat.label}</p>
+                <p className="text-gray-500 text-sm">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -181,77 +171,66 @@ export default function HomePage() {
       </section>
 
       {/* Plans Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Plans for every creator
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Simple, transparent pricing
             </h2>
-            <p className="text-xl text-gray-600">Start free. Upgrade as you grow.</p>
+            <p className="text-xl text-gray-400">Start free. Upgrade as you grow.</p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              {
-                name: 'Free',
-                price: '$0',
-                icon: '🚀',
-                features: ['1 Link Page', '1 Social Account', '100 Auto-Replies/mo', 'Basic Analytics', '100K Tracked Events']
-              },
               {
                 name: 'Starter',
                 price: '$9',
-                icon: '⭐',
-                features: ['5 Link Pages', '3 Social Accounts', '1K Auto-Replies/mo', 'Advanced Analytics', '1M Tracked Events'],
-                popular: true
+                features: ['5 Link Pages', '3 Social Accounts', '1K Auto-Replies/mo', 'Advanced Analytics']
               },
               {
                 name: 'Pro',
                 price: '$29',
-                icon: '🔥',
-                features: ['25 Link Pages', '10 Social Accounts', '10K Auto-Replies/mo', 'Full Analytics', 'Custom Domains', '10M Tracked Events']
+                features: ['25 Link Pages', '10 Social Accounts', '10K Auto-Replies/mo', 'Custom Domains', 'Priority Support'],
+                popular: true
               },
               {
-                name: 'Agency',
+                name: 'Enterprise',
                 price: 'Custom',
-                icon: '👑',
-                features: ['Unlimited Pages', 'Unlimited Accounts', 'Unlimited Replies', 'White-Label', 'Priority Support', 'Dedicated Account Manager']
+                features: ['Unlimited Pages', 'Unlimited Accounts', 'White-Label', 'Dedicated Support', 'SLA Guarantee']
               }
             ].map((plan, idx) => (
               <div
                 key={idx}
-                className={`rounded-2xl p-8 border-2 transition-all ${
-                  plan.popular
-                    ? 'bg-gradient-to-br from-emerald-50 to-blue-50 border-emerald-600 shadow-2xl -translate-y-4'
-                    : 'bg-white border-gray-200 hover:border-gray-300'
-                }`}
+                className={`rounded-lg p-8 border transition-all ${plan.popular
+                    ? 'bg-white/[0.05] border-white/[0.16] scale-105'
+                    : 'bg-white/[0.03] border-white/[0.08]'
+                  }`}
               >
                 {plan.popular && (
-                  <div className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full inline-block mb-4">
-                    Most Popular ⭐
+                  <div className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full inline-block mb-4">
+                    Most Popular
                   </div>
                 )}
-                <div className="text-4xl mb-3">{plan.icon}</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <div className="text-4xl font-black text-gray-900 mb-6">
+                <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
+                <div className="text-4xl font-bold text-white mb-6">
                   {plan.price}
-                  {plan.price !== 'Custom' && <span className="text-lg text-gray-600">/mo</span>}
+                  {plan.price !== 'Custom' && <span className="text-lg text-gray-500">/mo</span>}
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
-                      <Check className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <li key={i} className="flex items-center gap-3 text-gray-300 text-sm">
+                      <Check className="w-4 h-4 text-blue-500 flex-shrink-0" />
                       {feature}
                     </li>
                   ))}
                 </ul>
                 <Link
-                  href="/dashboard"
-                  className={`block text-center py-3 rounded-xl font-bold transition-all ${
-                    plan.popular
-                      ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white hover:shadow-lg'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                  }`}
+                  href="/dashboard
+"
+                  className={`block text-center py-2.5 rounded-md font-medium transition-all ${plan.popular
+                      ? 'bg-white text-black hover:bg-gray-100'
+                      : 'bg-white/[0.05] border border-white/[0.12] text-white hover:bg-white/[0.08]'
+                    }`}
                 >
                   Get Started
                 </Link>
@@ -261,108 +240,63 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-              Loved by creators worldwide
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: 'ReplyLink saved me 10 hours a week. The auto-reply feature is incredible.',
-                author: 'Sarah Chen',
-                role: 'Content Creator, 500K followers',
-                emoji: '💎'
-              },
-              {
-                quote: 'Best tool for managing multiple social platforms. The analytics are spot-on.',
-                author: 'Marcus Rodriguez',
-                role: 'E-commerce Founder',
-                emoji: '🚀'
-              },
-              {
-                quote: 'Customer support is amazing. The platform keeps improving every month.',
-                author: 'Emma Thompson',
-                role: 'Digital Marketing Agency',
-                emoji: '⭐'
-              }
-            ].map((testimonial, idx) => (
-              <div key={idx} className="bg-gray-50 p-8 rounded-2xl border-2 border-gray-100 hover:border-emerald-200 transition-colors">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">{testimonial.emoji}</span>
-                  <div className="text-amber-400 text-lg">★★★★★</div>
-                </div>
-                <p className="text-gray-700 mb-6 italic leading-relaxed font-medium">"{testimonial.quote}"</p>
-                <div>
-                  <p className="font-bold text-gray-900">{testimonial.author}</p>
-                  <p className="text-sm text-gray-600">{testimonial.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-emerald-600 via-blue-600 to-emerald-600">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-white/[0.08]">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-black text-white mb-6">
-            Ready to transform your presence?
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Ready to get started?
           </h2>
-          <p className="text-xl text-emerald-100 mb-8 font-medium">
-            Join thousands of creators growing their audience with ReplyLink.
+          <p className="text-xl text-gray-400 mb-8">
+            Join thousands of professionals using ReplyLink.
           </p>
           <Link
             href="/dashboard"
-            className="bg-white text-emerald-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all transform hover:-translate-y-1 inline-flex items-center gap-2"
+            className="bg-white text-black px-8 py-3.5 rounded-md font-medium hover:bg-gray-100 transition-all inline-flex items-center gap-2"
           >
-            Start Free Today <ArrowRight className="w-5 h-5" />
+            Start Free Today
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
+      <footer className="border-t border-white/[0.08] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-6 h-6 text-emerald-600" />
-                <span className="font-black text-white">ReplyLink</span>
+                <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-blue-700 rounded-md"></div>
+                <span className="font-bold text-white">ReplyLink</span>
               </div>
-              <p className="text-sm">The complete link-in-bio platform for creators and businesses.</p>
+              <p className="text-sm text-gray-500">Professional link-in-bio platform.</p>
             </div>
             <div>
-              <h4 className="font-bold text-white mb-4">Product</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/functionality" className="hover:text-white">Features</Link></li>
-                <li><Link href="/core-features" className="hover:text-white">Technical Details</Link></li>
-                <li><Link href="/dashboard" className="hover:text-white">Dashboard</Link></li>
+              <h4 className="font-semibold text-white mb-4 text-sm">Product</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link href="/functionality" className="hover:text-white transition-colors">Features</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">About</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-                <li><a href="#" className="hover:text-white">Contact</a></li>
+              <h4 className="font-semibold text-white mb-4 text-sm">Company</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Privacy</a></li>
-                <li><a href="#" className="hover:text-white">Terms</a></li>
-                <li><a href="#" className="hover:text-white">Security</a></li>
+              <h4 className="font-semibold text-white mb-4 text-sm">Legal</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-sm">
-            <p>&copy; 2024 ReplyLink. All rights reserved. Built for creators, by creators.</p>
+          <div className="border-t border-white/[0.08] pt-8 text-center text-sm text-gray-500">
+            <p>&copy; 2024 ReplyLink. All rights reserved.</p>
           </div>
         </div>
       </footer>

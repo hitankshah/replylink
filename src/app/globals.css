@@ -4,48 +4,86 @@
 
 @layer base {
   :root {
+    /* Shadcn UI tokens - Light theme (rarely used, app is dark-first) */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
-    --radius: 0.5rem;
+    --popover-foreground: 0 0% 9%;
+    --primary: 217 19% 27%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 65% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 217 19% 27%;
+    --radius: 0.375rem;
+
+    /* ReplyLink Professional Design Tokens */
+    /* Spacing (4px grid) */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    /* Layout */
+    --sidebar-width: 240px;
+    --sidebar-collapsed-width: 64px;
+    --topbar-height: 64px;
+    --max-content-width: 1280px;
+
+    /* Professional Brand colors (muted blues, not bright greens) */
+    --brand-primary: 217 19% 27%;
+    --brand-primary-light: 217 19% 45%;
+    --brand-primary-dark: 217 19% 15%;
+    --accent-blue: 214 60% 50%;
+    --accent-indigo: 239 50% 55%;
+    --accent-navy: 217 91% 25%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 262 83% 58%;
+    /* Dark theme - Professional blacks/grays (Vercel/Linear style) */
+    --background: 0 0% 4%;
+    /* Near black */
+    --foreground: 0 0% 98%;
+    /* Almost white text */
+    --card: 0 0% 9%;
+    /* Elevated surface */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 214 60% 50%;
+    /* Professional blue accent */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 15%;
+    /* Dark gray */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 63%;
+    /* Medium gray text */
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 65% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;
+    /* Subtle borders */
+    --input: 0 0% 15%;
+    --ring: 214 60% 50%;
+    /* Blue focus ring */
   }
 }
 
@@ -56,25 +94,26 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer utilities {
+
+  /* Professional animations (subtle, not flashy) */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-in;
+    animation: fadeIn 0.3s ease-out;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out;
+    animation: slideUp 0.3s ease-out;
   }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulseGlow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  .animate-slide-down {
+    animation: slideDown 0.3s ease-out;
   }
 
   @keyframes fadeIn {
@@ -89,7 +128,7 @@
 
   @keyframes slideUp {
     from {
-      transform: translateY(20px);
+      transform: translateY(10px);
       opacity: 0;
     }
 
@@ -99,86 +138,64 @@
     }
   }
 
-  @keyframes float {
+  @keyframes slideDown {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
 
-    0%,
-    100% {
+    to {
       transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-20px);
+      opacity: 1;
     }
   }
 
-  @keyframes pulseGlow {
-
-    0%,
-    100% {
-      opacity: 0.5;
-      transform: scale(1);
-    }
-
-    50% {
-      opacity: 0.8;
-      transform: scale(1.05);
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: 200% 0;
-    }
-
-    100% {
-      background-position: -200% 0;
-    }
-  }
-
+  /* Professional UI utilities (subtle, clean) */
   .glass-effect {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08];
   }
 
-  .glass-card {
-    @apply bg-slate-900/50 backdrop-blur-md border border-slate-800 hover:border-slate-700 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10;
+  .card-hover {
+    @apply transition-all duration-200 hover:border-white/[0.12] hover:shadow-lg;
   }
 
-  .gradient-bg {
-    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+  .text-gradient-professional {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-100 to-gray-300;
   }
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400;
+  /* Subtle grid background (not distracting) */
+  .bg-grid-subtle {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   }
 
-  .bg-grid-pattern {
-    background-size: 50px 50px;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
-  }
-
-  .shimmer-button {
-    background: linear-gradient(110deg, #0f172a 45%, #1e293b 55%, #0f172a);
-    background-size: 200% 100%;
-    animation: shimmer 3s infinite linear;
+  /* Professional focus styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
   }
 }
 
-/* Custom scrollbar */
+/* Custom professional scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-900;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-600;
+  @apply bg-white/20;
+}
+
+/* Selection color (professional blue, not bright) */
+::selection {
+  background-color: hsl(214, 60%, 50%, 0.3);
+  color: hsl(0, 0%, 98%);
 }

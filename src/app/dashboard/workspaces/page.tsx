@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Plus, Building2, Users, CheckCircle2, Settings } from 'lucide-react'
 
 interface Workspace {
   id: string
@@ -64,114 +65,118 @@ export default function WorkspacesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-[hsl(0,0%,4%)] text-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading workspaces...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading workspaces...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-8">
+    <div className="min-h-screen bg-[hsl(0,0%,4%)] text-white p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Workspaces</h1>
-            <Button
-              onClick={handleCreateWorkspace}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Create Workspace
-            </Button>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Workspaces</h1>
+            <p className="text-gray-400">
+              Manage your workspaces and team members
+            </p>
           </div>
-          <p className="text-slate-600 dark:text-slate-400">
-            Manage your workspaces and team members
-          </p>
+          <Button
+            onClick={handleCreateWorkspace}
+            className="bg-white text-black hover:bg-gray-100 gap-2 font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Create Workspace
+          </Button>
         </div>
 
         {error && (
-          <Card className="mb-6 border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
-            <CardContent className="pt-6">
-              <p className="text-red-600 dark:text-red-200">{error}</p>
-            </CardContent>
-          </Card>
+          <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
+            {error}
+          </div>
         )}
 
         {workspaces.length === 0 ? (
-          <Card>
-            <CardContent className="pt-12 pb-12 text-center">
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
-                No workspaces yet. Create your first workspace to get started.
-              </p>
-              <Button
-                onClick={handleCreateWorkspace}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Create Your First Workspace
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-12 text-center">
+            <div className="w-16 h-16 bg-white/[0.05] rounded-full flex items-center justify-center mx-auto mb-6">
+              <Building2 className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">No workspaces yet</h3>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+              Create your first workspace to start managing your links and team members.
+            </p>
+            <Button
+              onClick={handleCreateWorkspace}
+              className="bg-white text-black hover:bg-gray-100 font-medium"
+            >
+              Create Your First Workspace
+            </Button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {workspaces.map((workspace) => (
-              <Card
+              <div
                 key={workspace.id}
-                className={`cursor-pointer transition-all hover:shadow-lg ${
-                  currentWorkspaceId === workspace.id
-                    ? 'ring-2 ring-blue-500 border-blue-500'
-                    : ''
-                }`}
+                className={`group cursor-pointer transition-all rounded-lg border p-6 ${currentWorkspaceId === workspace.id
+                    ? 'bg-white/[0.05] border-blue-500/50 ring-1 ring-blue-500/20'
+                    : 'bg-white/[0.03] border-white/[0.08] hover:border-white/[0.16] hover:bg-white/[0.05]'
+                  }`}
                 onClick={() => handleSelectWorkspace(workspace.id)}
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-1">{workspace.name}</CardTitle>
-                      {workspace.description && (
-                        <CardDescription className="line-clamp-2">
-                          {workspace.description}
-                        </CardDescription>
-                      )}
-                    </div>
-                    {currentWorkspaceId === workspace.id && (
-                      <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 dark:text-blue-200 bg-blue-100 dark:bg-blue-900 rounded">
-                        Active
-                      </span>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-white mb-1">{workspace.name}</h3>
+                    {workspace.description && (
+                      <p className="text-sm text-gray-400 line-clamp-2">
+                        {workspace.description}
+                      </p>
                     )}
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Plan:</span>
-                      <span className="font-semibold capitalize">
-                        {workspace.plan || 'Free'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Members:</span>
-                      <span className="font-semibold">{workspace.memberCount}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Role:</span>
-                      <span className="font-semibold capitalize">{workspace.role}</span>
-                    </div>
-                    <div className="pt-3 flex gap-2">
-                      <Link
-                        href={`/dashboard/workspaces/${workspace.id}/settings`}
-                        className="flex-1"
-                      >
-                        <Button variant="outline" size="sm" className="w-full">
-                          Settings
-                        </Button>
-                      </Link>
+                  {currentWorkspaceId === workspace.id && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-blue-400 bg-blue-400/10 rounded-full border border-blue-400/20">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Active
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-3 pt-2 border-t border-white/[0.08]">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-400">Plan</span>
+                    <span className="font-medium text-white capitalize">
+                      {workspace.plan || 'Free'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-400">Members</span>
+                    <div className="flex items-center gap-1.5 text-white">
+                      <Users className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="font-medium">{workspace.memberCount}</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-400">Role</span>
+                    <span className="font-medium text-white capitalize">{workspace.role}</span>
+                  </div>
+
+                  <div className="pt-3">
+                    <Link
+                      href={`/dashboard/workspaces/${workspace.id}/settings`}
+                      className="block"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button variant="outline" size="sm" className="w-full bg-transparent border-white/[0.12] text-gray-300 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.2]">
+                        <Settings className="w-3.5 h-3.5 mr-2" />
+                        Settings
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}

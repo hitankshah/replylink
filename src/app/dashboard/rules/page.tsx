@@ -3,7 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Filter } from 'lucide-react'
+import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Filter, Search, Instagram, Facebook, MessageCircle } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface Rule {
   id: string
@@ -96,13 +106,13 @@ export default function RulesListPage() {
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'INSTAGRAM':
-        return '📷'
+        return <Instagram className="w-4 h-4 text-pink-500" />
       case 'FACEBOOK':
-        return '👥'
+        return <Facebook className="w-4 h-4 text-blue-500" />
       case 'WHATSAPP':
-        return '💬'
+        return <MessageCircle className="w-4 h-4 text-green-500" />
       default:
-        return '🔗'
+        return <div className="w-4 h-4 bg-gray-600 rounded-full" />
     }
   }
 
@@ -118,43 +128,45 @@ export default function RulesListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[hsl(0,0%,4%)] text-white p-8">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Auto-Reply Rules</h1>
-            <p className="text-slate-400">
+            <p className="text-gray-400">
               Manage your auto-reply rules across all connected platforms
             </p>
           </div>
-          <Link
-            href="/dashboard/rules/create"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-          >
-            <Plus size={20} />
-            Create Rule
+          <Link href="/dashboard/rules/create">
+            <Button className="bg-white text-black hover:bg-gray-100 gap-2 font-medium">
+              <Plus className="w-4 h-4" />
+              Create Rule
+            </Button>
           </Link>
         </div>
 
         {/* Filters */}
-        <div className="bg-slate-800 rounded-lg p-4 mb-6 border border-slate-700">
+        <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <Filter size={18} className="text-slate-400" />
-            <span className="text-sm font-medium text-slate-400">Filters</span>
+            <Filter size={16} className="text-gray-400" />
+            <span className="text-sm font-medium text-gray-400">Filters</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              type="text"
-              placeholder="Search rules..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-slate-700 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Input
+                type="text"
+                placeholder="Search rules..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 bg-white/[0.05] border-white/[0.12] text-white placeholder:text-gray-500 focus:border-white/[0.24] focus:ring-0"
+              />
+            </div>
             <select
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
-              className="bg-slate-700 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-white/[0.05] border border-white/[0.12] rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/[0.24]"
             >
               <option value="">All Platforms</option>
               <option value="INSTAGRAM">Instagram</option>
@@ -164,7 +176,7 @@ export default function RulesListPage() {
             <select
               value={isActive}
               onChange={(e) => setIsActive(e.target.value)}
-              className="bg-slate-700 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-white/[0.05] border border-white/[0.12] rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-white/[0.24]"
             >
               <option value="">All Status</option>
               <option value="true">Active</option>
@@ -175,124 +187,107 @@ export default function RulesListPage() {
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6 text-red-200">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
 
         {/* Rules Table */}
-        <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+        <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-slate-400">Loading rules...</div>
+            <div className="p-8 text-center text-gray-400">Loading rules...</div>
           ) : rules.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-slate-400 mb-4">No rules found</p>
+            <div className="p-12 text-center">
+              <p className="text-gray-400 mb-4">No rules found</p>
               <Link
                 href="/dashboard/rules/create"
-                className="text-blue-400 hover:text-blue-300 text-sm"
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium"
               >
                 Create your first rule →
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-700 border-b border-slate-600">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
-                      Platform
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
-                      Trigger
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
-                      Priority
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
-                      Executions
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-slate-300">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rules.map((rule) => (
-                    <tr
-                      key={rule.id}
-                      className="border-b border-slate-700 hover:bg-slate-750 transition"
-                    >
-                      <td className="px-6 py-4 text-sm text-white font-medium">
-                        {rule.name}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="flex items-center gap-2">
-                          <span className="text-lg">{getPlatformIcon(rule.platform)}</span>
-                          <span className="text-slate-300">{rule.platform}</span>
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-300">
-                        {getTriggerLabel(rule.triggerType)}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="bg-blue-900/50 text-blue-200 px-2 py-1 rounded text-xs font-medium">
-                          {rule.priority}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-300">
-                        {rule.executionCount}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium ${
-                            rule.isActive
-                              ? 'bg-green-900/50 text-green-200'
-                              : 'bg-slate-700 text-slate-400'
+            <Table>
+              <TableHeader className="bg-white/[0.02] border-b border-white/[0.08]">
+                <TableRow className="border-white/[0.08] hover:bg-transparent">
+                  <TableHead className="text-gray-400 font-medium">Name</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Platform</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Trigger</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Priority</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Executions</TableHead>
+                  <TableHead className="text-gray-400 font-medium">Status</TableHead>
+                  <TableHead className="text-center text-gray-400 font-medium">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rules.map((rule) => (
+                  <TableRow
+                    key={rule.id}
+                    className="border-white/[0.08] hover:bg-white/[0.04] transition-colors"
+                  >
+                    <TableCell className="font-medium text-white">
+                      {rule.name}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getPlatformIcon(rule.platform)}
+                        <span className="text-gray-300 text-sm capitalize">{rule.platform.toLowerCase()}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {getTriggerLabel(rule.triggerType)}
+                    </TableCell>
+                    <TableCell>
+                      <span className="bg-white/[0.05] border border-white/[0.1] text-gray-300 px-2 py-0.5 rounded text-xs font-medium">
+                        {rule.priority}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {rule.executionCount.toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${rule.isActive
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                            : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
                           }`}
+                      >
+                        {rule.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleToggle(rule.id, rule.isActive)}
+                          className="p-1.5 text-gray-400 hover:text-white hover:bg-white/[0.1] rounded-md transition-colors"
+                          title={rule.isActive ? 'Disable' : 'Enable'}
                         >
-                          {rule.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-3">
-                          <button
-                            onClick={() => handleToggle(rule.id, rule.isActive)}
-                            className="text-slate-400 hover:text-slate-300 transition"
-                            title={rule.isActive ? 'Disable' : 'Enable'}
-                          >
-                            {rule.isActive ? (
-                              <ToggleRight size={18} />
-                            ) : (
-                              <ToggleLeft size={18} />
-                            )}
-                          </button>
-                          <Link
-                            href={`/dashboard/rules/${rule.id}/edit`}
-                            className="text-blue-400 hover:text-blue-300 transition"
-                            title="Edit"
-                          >
-                            <Edit2 size={18} />
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(rule.id)}
-                            className="text-red-400 hover:text-red-300 transition"
-                            title="Delete"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          {rule.isActive ? (
+                            <ToggleRight size={18} />
+                          ) : (
+                            <ToggleLeft size={18} />
+                          )}
+                        </button>
+                        <Link
+                          href={`/dashboard/rules/${rule.id}/edit`}
+                          className="p-1.5 text-gray-400 hover:text-white hover:bg-white/[0.1] rounded-md transition-colors"
+                          title="Edit"
+                        >
+                          <Edit2 size={16} />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(rule.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-md transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </div>
 
@@ -306,11 +301,10 @@ export default function RulesListPage() {
                   setPagination({ ...pagination, page })
                   fetchRules(page)
                 }}
-                className={`px-3 py-1 rounded text-sm ${
-                  pagination.page === page
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
+                className={`px-3 py-1 rounded-md text-sm transition-colors ${pagination.page === page
+                    ? 'bg-white text-black font-medium'
+                    : 'bg-white/[0.05] text-gray-400 hover:bg-white/[0.1] hover:text-white'
+                  }`}
               >
                 {page}
               </button>

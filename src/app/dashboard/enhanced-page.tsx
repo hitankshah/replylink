@@ -140,32 +140,32 @@ export default function DashboardPage() {
         {/* Main Stats Row */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
           <StatsCard
-            icon={<Eye className="w-5 h-5" />}
-            label="Page Views"
-            value={stats.pageViews.toLocaleString()}
-            change="+12.5%"
-            color="text-blue-400"
+            icon={Eye}
+            title="Page Views"
+            value={stats.pageViews}
+            trend={12.5}
+            color="blue"
           />
           <StatsCard
-            icon={<MousePointerClick className="w-5 h-5" />}
-            label="Button Clicks"
-            value={stats.buttonClicks.toLocaleString()}
-            change="+8.2%"
-            color="text-purple-400"
+            icon={MousePointerClick}
+            title="Button Clicks"
+            value={stats.buttonClicks}
+            trend={8.2}
+            color="purple"
           />
           <StatsCard
-            icon={<MessageSquare className="w-5 h-5" />}
-            label="Replies Sent"
-            value={stats.repliesSent.toLocaleString()}
-            change="+15.3%"
-            color="text-green-400"
+            icon={MessageSquare}
+            title="Replies Sent"
+            value={stats.repliesSent}
+            trend={15.3}
+            color="green"
           />
           <StatsCard
-            icon={<TrendingUp className="w-5 h-5" />}
-            label="Plan Usage"
-            value={`${stats.repliesSent}/${stats.repliesSent + stats.remainingReplies}`}
-            change={`${Math.round((stats.repliesSent / (stats.repliesSent + stats.remainingReplies)) * 100)}%`}
-            color="text-cyan-400"
+            icon={TrendingUp}
+            title="Plan Usage"
+            value={Math.round((stats.repliesSent / (stats.repliesSent + stats.remainingReplies || 1)) * 100)}
+            subtitle={`${stats.repliesSent} / ${stats.repliesSent + stats.remainingReplies}`}
+            color="orange"
           />
         </div>
 
@@ -173,11 +173,11 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="md:col-span-2 bg-slate-900/50 border border-white/5 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Page Views</h3>
-            <PageViewsChart />
+            <PageViewsChart days={parseInt(dateRange)} />
           </div>
           <div className="bg-slate-900/50 border border-white/5 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Button Clicks</h3>
-            <ButtonClicksChart />
+            <ButtonClicksChart days={parseInt(dateRange)} />
           </div>
         </div>
 

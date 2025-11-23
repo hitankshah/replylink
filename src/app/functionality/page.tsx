@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { 
+import {
   Zap, Link2, Share2, Settings, BarChart3, Users, Lock, Smartphone,
   QrCode, Scissors, MessageCircle, Instagram, Facebook, MessageSquare,
-  Globe, Palette, Users2, GitBranch, CreditCard, CheckCircle2, ArrowRight
+  Globe, Palette, Users2, GitBranch, CreditCard, CheckCircle2, ArrowRight,
+  Target, Rocket
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -303,44 +304,59 @@ const PLATFORMS = [
 export default function FunctionalityPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const categories = ['All', 'Core', 'Tools', 'Automation', 'Analytics', 'Integration', 'Customization', 'Collaboration', 'Billing', 'Security', 'Dashboard']
-  
-  const filteredFeatures = selectedCategory === 'All' 
-    ? FEATURES 
+
+  const filteredFeatures = selectedCategory === 'All'
+    ? FEATURES
     : FEATURES.filter(f => f.category === selectedCategory)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
-      <div className="border-b border-white/10 bg-slate-900/50 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Complete Feature Set
-          </h1>
-          <p className="text-xl text-slate-400 mb-8">
-            Everything you need to manage links, automate replies, and grow your audience
-          </p>
+    <div className="min-h-screen bg-[hsl(0,0%,4%)] text-white">
+      {/* Hero Section */}
+      <div className="relative border-b border-white/[0.08] bg-[hsl(0,0%,4%)]">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          {/* Header Content */}
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="bg-white/[0.05] border border-white/[0.12] text-gray-300 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2">
+                <Zap className="w-3 h-3 text-blue-500" />
+                POWERFUL FEATURES
+              </div>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight tracking-tight">
+              Everything You Need to <br />
+              <span className="text-gray-400">Grow Your Audience</span>
+            </h1>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Powerful link-in-bio pages, intelligent auto-replies, and comprehensive analytics all in one platform
+            </p>
+          </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
             {STATS.map((stat, idx) => (
-              <div key={idx} className="bg-slate-800/50 border border-white/5 rounded-lg p-4">
-                <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-emerald-400">{stat.value}</p>
+              <div key={idx} className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-6 text-center">
+                <p className="text-gray-500 text-sm mb-2 font-medium uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-bold text-white">{stat.value}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* Supported Platforms */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Supported Platforms</h2>
+        <div className="mb-20">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-white/[0.05] rounded-lg">
+              <Target className="w-5 h-5 text-blue-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Supported Platforms</h2>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             {PLATFORMS.map((platform, idx) => (
-              <div key={idx} className="bg-slate-800/50 border border-white/10 rounded-lg p-6 flex flex-col items-center justify-center hover:border-emerald-500/50 transition-colors">
-                <div className="text-emerald-400 mb-2">{platform.icon}</div>
-                <p className="text-white text-sm font-semibold text-center">{platform.name}</p>
+              <div key={idx} className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-6 flex flex-col items-center justify-center hover:bg-white/[0.05] transition-all group cursor-pointer">
+                <div className="text-gray-400 group-hover:text-white mb-3 transition-colors">{platform.icon}</div>
+                <p className="text-gray-400 group-hover:text-white text-sm font-medium text-center transition-colors">{platform.name}</p>
               </div>
             ))}
           </div>
@@ -348,17 +364,21 @@ export default function FunctionalityPage() {
 
         {/* Category Filter */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Browse Features</h2>
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-white/[0.05] rounded-lg">
+              <Rocket className="w-5 h-5 text-blue-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Browse All Features</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-800/50 text-slate-300 border border-white/5 hover:border-emerald-500/50'
-                }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${selectedCategory === cat
+                    ? 'bg-white text-black'
+                    : 'bg-white/[0.03] text-gray-400 border border-white/[0.08] hover:bg-white/[0.08] hover:text-white'
+                  }`}
               >
                 {cat}
               </button>
@@ -367,29 +387,21 @@ export default function FunctionalityPage() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 mb-20">
           {filteredFeatures.map((feature, idx) => (
             <div
               key={idx}
-              className={`rounded-xl border transition-all ${
-                feature.status === 'active'
-                  ? 'bg-slate-900/50 border-white/5 hover:border-emerald-500/50 hover:bg-slate-900/70'
-                  : 'bg-slate-900/30 border-white/5'
-              }`}
+              className="rounded-lg border bg-white/[0.03] border-white/[0.08] hover:border-white/[0.16] transition-all group overflow-hidden"
             >
-              <div className="p-6">
+              <div className="p-8">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    feature.status === 'active'
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-slate-800/50 text-slate-400'
-                  }`}>
+                <div className="flex items-start justify-between mb-6">
+                  <div className="p-3 rounded-lg bg-white/[0.05] text-blue-500 group-hover:bg-white/[0.08] transition-colors">
                     {feature.icon}
                   </div>
                   <div className="flex items-center gap-2">
                     {feature.status === 'active' && (
-                      <span className="flex items-center gap-1 text-xs bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full">
+                      <span className="flex items-center gap-1 text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20 font-medium">
                         <CheckCircle2 className="w-3 h-3" /> Active
                       </span>
                     )}
@@ -397,15 +409,15 @@ export default function FunctionalityPage() {
                 </div>
 
                 {/* Title and Description */}
-                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-slate-400 text-sm mb-4">{feature.description}</p>
+                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed">{feature.description}</p>
 
                 {/* Features List */}
-                <div className="space-y-2 mb-6">
+                <div className="space-y-3 mb-8">
                   {feature.features.map((f, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-slate-300">{f}</span>
+                    <div key={i} className="flex items-start gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-gray-300">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -414,10 +426,10 @@ export default function FunctionalityPage() {
                 {feature.action && (
                   <Link
                     href={feature.action.href}
-                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-white hover:text-blue-400 transition-colors group/link"
                   >
                     {feature.action.label}
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
                   </Link>
                 )}
               </div>
@@ -426,24 +438,26 @@ export default function FunctionalityPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-emerald-600/20 via-emerald-600/10 to-emerald-600/20 border border-emerald-500/30 rounded-xl p-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-          <p className="text-slate-400 mb-8 max-w-2xl mx-auto">
-            Join thousands of users managing their links and automating replies with ReplyLink
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/dashboard"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Go to Dashboard
-            </Link>
-            <Link
-              href="/dashboard/billing"
-              className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-lg font-semibold border border-white/10 transition-colors"
-            >
-              View Plans
-            </Link>
+        <div className="relative rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.03] p-12 text-center">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto text-lg">
+              Join thousands of creators managing their links and automating replies with ReplyLink
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/dashboard"
+                className="bg-white text-black px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-all"
+              >
+                Go to Dashboard
+              </Link>
+              <Link
+                href="/dashboard/billing"
+                className="bg-transparent text-white border border-white/[0.12] px-8 py-3 rounded-md font-medium hover:bg-white/[0.05] transition-all"
+              >
+                View Plans
+              </Link>
+            </div>
           </div>
         </div>
       </div>
