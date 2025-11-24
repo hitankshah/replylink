@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Redis } from 'ioredis'
-
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
+import redis from '@/lib/redis'
 
 interface RateLimitConfig {
   maxRequests: number
@@ -50,6 +48,18 @@ export async function checkRateLimit(
   identifier?: string
 ): Promise<{ allowed: boolean; remaining: number; reset: number }> {
   try {
+    // If Redis is not available, allow all requests in development
+    if (!redis) {
+      if (process.env.NODE_ENV === 'development') {
+        return {
+          allowed: true,
+          remaining: config.maxRequests,
+          reset: Date.now() + config.windowMs,
+        }
+      }
+      throw new Error('Redis is required for rate limiting in production')
+    }
+
     const ip = getClientIP(request)
     const key = createRateLimitKey(identifier || ip, config.windowMs)
 
@@ -66,6 +76,7 @@ export async function checkRateLimit(
     return { allowed, remaining, reset }
   } catch (error) {
     console.error('Rate limit check error:', error)
+    // Allow request on error to prevent blocking users
     return { allowed: true, remaining: config.maxRequests, reset: Date.now() + config.windowMs }
   }
 }

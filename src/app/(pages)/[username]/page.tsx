@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { ButtonLink } from "@/components/pages/PublicButtonLink"
 
 interface PageProps {
   params: {
@@ -35,17 +36,18 @@ export default async function PublicLinkPage({ params }: PageProps) {
     where: { username: params.username },
     include: {
       buttons: {
+        where: { isActive: true },
         orderBy: { order: "asc" },
       },
     },
   })
 
-  if (!page) {
+  if (!page || !page.isActive) {
     notFound()
   }
 
   // Track page view
-  const clientIp = 
+  const clientIp =
     process.env.NODE_ENV === "production"
       ? "unknown" // Would come from headers in production
       : "localhost"
@@ -89,19 +91,6 @@ export default async function PublicLinkPage({ params }: PageProps) {
     fontSize: "16px",
   }
 
-  const handleButtonClick = async (buttonId: string) => {
-    // This would be called from client-side
-    try {
-      await fetch("/api/track/click", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ buttonId }),
-      })
-    } catch (err) {
-      console.error("Failed to track click:", err)
-    }
-  }
-
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
@@ -141,52 +130,5 @@ export default async function PublicLinkPage({ params }: PageProps) {
         )}
       </div>
     </div>
-  )
-}
-
-function ButtonLink({ button, theme }: { button: any; theme: any }) {
-  const handleClick = async () => {
-    try {
-      await fetch("/api/track/click", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ buttonId: button.id }),
-      })
-    } catch (err) {
-      console.error("Failed to track click:", err)
-    }
-
-    // Handle button action
-    if (button.type === "URL") {
-      window.open(button.value, "_blank")
-    } else if (button.type === "WHATSAPP") {
-      window.open(`https://wa.me/${button.value}`, "_blank")
-    } else if (button.type === "CALL") {
-      window.location.href = `tel:${button.value}`
-    } else if (button.type === "EMAIL") {
-      window.location.href = `mailto:${button.value}`
-    } else if (button.type === "INSTAGRAM") {
-      window.open(`https://instagram.com/${button.value}`, "_blank")
-    } else if (button.type === "FACEBOOK") {
-      window.open(`https://facebook.com/${button.value}`, "_blank")
-    } else if (button.type === "TWITTER") {
-      window.open(`https://twitter.com/${button.value}`, "_blank")
-    } else if (button.type === "LINKEDIN") {
-      window.open(`https://linkedin.com/in/${button.value}`, "_blank")
-    }
-  }
-
-  return (
-    <button
-      onClick={handleClick}
-      className="w-full py-3 px-4 rounded-lg font-semibold transition-all hover:opacity-90 active:scale-95"
-      style={{
-        backgroundColor: theme.buttonColor as string,
-        color: theme.buttonTextColor as string,
-      }}
-    >
-      {button.icon && <span className="mr-2">{button.icon}</span>}
-      {button.label}
-    </button>
   )
 }

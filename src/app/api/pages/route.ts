@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth"
 import { createPageSchema } from "@/lib/validators"
 import { checkPageLimit, getUpgradeUrl } from "@/lib/middleware/planEnforcement"
 import { z } from "zod"
+import { formatDistanceToNow } from "date-fns"
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
       views: page._count.views,
       clicks: 0, // TODO: Aggregate button clicks
       status: page.isActive ? "Active" : "Draft",
-      lastUpdated: page.updatedAt.toISOString(), // Frontend will format this
+      lastUpdated: formatDistanceToNow(new Date(page.updatedAt), { addSuffix: true }),
       thumbnail: page.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${page.username}`
     }))
 

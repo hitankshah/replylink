@@ -52,16 +52,17 @@ export function PageCreationDialog() {
 
             if (!response.ok) {
                 const error = await response.json()
-                throw new Error(error.message || 'Failed to create page')
+                throw new Error(error.error || 'Failed to create page')
             }
 
             const newPage = await response.json()
             setOpen(false)
             reset()
-            router.push(`/dashboard/pages/${newPage.id}/editor`)
+            router.push(`/dashboard/pages/${newPage.id}/edit`)
+            router.refresh() // Refresh to update the pages list
         } catch (error) {
             console.error('Error creating page:', error)
-            // In a real app, show toast error here
+            alert(error instanceof Error ? error.message : 'Failed to create page')
         } finally {
             setIsLoading(false)
         }

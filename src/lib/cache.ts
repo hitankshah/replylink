@@ -1,6 +1,4 @@
-import { Redis } from 'ioredis'
-
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
+import redis from '@/lib/redis'
 
 interface CacheOptions {
   ttl?: number
@@ -13,6 +11,8 @@ const DEFAULT_PREFIX = 'cache:'
 class Cache {
   async get<T>(key: string, options?: CacheOptions): Promise<T | null> {
     try {
+      if (!redis) return null // Skip caching if Redis not available
+
       const prefixedKey = this.getPrefixedKey(key, options?.prefix)
       const value = await redis.get(prefixedKey)
 
@@ -29,6 +29,8 @@ class Cache {
 
   async set<T>(key: string, value: T, options?: CacheOptions): Promise<boolean> {
     try {
+      if (!redis) return false // Skip caching if Redis not available
+
       const prefixedKey = this.getPrefixedKey(key, options?.prefix)
       const ttl = options?.ttl || DEFAULT_TTL
       const stringValue = JSON.stringify(value)
@@ -48,6 +50,7 @@ class Cache {
 
   async del(key: string, options?: CacheOptions): Promise<boolean> {
     try {
+      if (!redis) return false
       const prefixedKey = this.getPrefixedKey(key, options?.prefix)
       await redis.del(prefixedKey)
       return true
@@ -59,6 +62,7 @@ class Cache {
 
   async delPattern(pattern: string, options?: CacheOptions): Promise<number> {
     try {
+      if (!redis) return 0
       const prefixedPattern = this.getPrefixedKey(pattern, options?.prefix)
       const keys = await redis.keys(prefixedPattern)
 

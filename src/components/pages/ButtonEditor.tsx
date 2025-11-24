@@ -31,7 +31,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
-export type ButtonType = 'URL' | 'WHATSAPP' | 'CALL' | 'EMAIL' | 'INSTAGRAM' | 'FACEBOOK'
+export type ButtonType = 'URL' | 'WHATSAPP' | 'CALL' | 'EMAIL' | 'INSTAGRAM' | 'FACEBOOK' | 'TWITTER' | 'LINKEDIN' | 'TIKTOK' | 'YOUTUBE'
 
 export interface LinkButton {
   id: string
@@ -46,13 +46,17 @@ interface ButtonEditorProps {
   onChange: (buttons: LinkButton[]) => void
 }
 
-const BUTTON_TYPES: { type: ButtonType; icon: React.ElementType; label: string }[] = [
-  { type: 'URL', icon: LinkIcon, label: 'Website URL' },
-  { type: 'WHATSAPP', icon: Phone, label: 'WhatsApp' }, // Using Phone icon for now
-  { type: 'INSTAGRAM', icon: Instagram, label: 'Instagram' },
-  { type: 'FACEBOOK', icon: Facebook, label: 'Facebook' },
-  { type: 'EMAIL', icon: Mail, label: 'Email' },
-  { type: 'CALL', icon: Phone, label: 'Phone Call' },
+const BUTTON_TYPES: { type: ButtonType; icon: React.ElementType; label: string; placeholder: string }[] = [
+  { type: 'URL', icon: LinkIcon, label: 'Website URL', placeholder: 'https://example.com' },
+  { type: 'INSTAGRAM', icon: Instagram, label: 'Instagram', placeholder: 'username' },
+  { type: 'FACEBOOK', icon: Facebook, label: 'Facebook', placeholder: 'username' },
+  { type: 'TWITTER', icon: Globe, label: 'Twitter/X', placeholder: 'username' },
+  { type: 'LINKEDIN', icon: Globe, label: 'LinkedIn', placeholder: 'username' },
+  { type: 'TIKTOK', icon: Globe, label: 'TikTok', placeholder: '@username' },
+  { type: 'YOUTUBE', icon: Globe, label: 'YouTube', placeholder: '@channel' },
+  { type: 'WHATSAPP', icon: Phone, label: 'WhatsApp', placeholder: '1234567890' },
+  { type: 'EMAIL', icon: Mail, label: 'Email', placeholder: 'you@example.com' },
+  { type: 'CALL', icon: Phone, label: 'Phone Call', placeholder: '+1234567890' },
 ]
 
 export function ButtonEditor({ buttons, onChange }: ButtonEditorProps) {
@@ -182,7 +186,7 @@ export function ButtonEditor({ buttons, onChange }: ButtonEditorProps) {
                       value={button.value}
                       onChange={(e) => updateButton(button.id, { value: e.target.value })}
                       className="bg-slate-900 border-slate-800"
-                      placeholder={button.type === 'EMAIL' ? 'mailto:you@example.com' : 'https://...'}
+                      placeholder={BUTTON_TYPES.find(t => t.type === button.type)?.placeholder || 'Enter value'}
                     />
                   </div>
                 </div>

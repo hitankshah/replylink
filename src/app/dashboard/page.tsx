@@ -118,14 +118,14 @@ export default function DashboardPage() {
         {
             title: "Create Link Page",
             description: "Build a new branded link page",
-            href: "/dashboard/pages/new",
+            href: "/dashboard/pages",
             icon: BarChart3,
             gradient: "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
         },
         {
             title: "Setup Auto-Reply",
             description: "Create automation rules",
-            href: "/dashboard/rules/new",
+            href: "/dashboard/rules",
             icon: MessageSquare,
             gradient: "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
         },

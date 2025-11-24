@@ -1,107 +1,74 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { jwtVerify } from 'jose'
-import { csrfProtection, csrfErrorResponse } from '@/lib/csrf'
-import { authRateLimit, apiRateLimit } from '@/lib/rateLimit'
-
-// Public routes that don't require authentication
-const PUBLIC_ROUTES = [
-  '/auth/login',
-  '/auth/signup',
-  '/auth/forgot-password',
-  '/api/auth/login',
-  '/api/auth/signup',
-  '/api/auth/reset-password',
-]
-
-// Routes that match dynamic parameters
-const DYNAMIC_ROUTES = [
-  /^\/[^/]+$/, // /:username - link-in-bio pages
-]
-
-// Routes that are always public
-const WEBHOOK_ROUTES = [
-  /^\/api\/webhooks\/.*/, // Webhook endpoints
-]
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-secret-key'
-)
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { verifyToken } from '@/lib/auth'
+// Note: CSRF and rate limiting disabled in middleware due to Edge Runtime limitations
+// These will be handled in individual API routes instead
 
 export async function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname
-  const method = req.method
+  const { pathname } = req.nextUrl
 
-  // Always allow webhooks
-  if (WEBHOOK_ROUTES.some(route => route.test(pathname))) {
+  // Public routes that don't need authentication
+  const publicRoutes = [
+    '/',
+    '/auth/login',
+    '/auth/signup',
+    '/auth/forgot-password',
+    '/link',
+    '/api/auth',
+    '/api/csrf-token',
+    '/api/webhooks',
+  ]
+
+  const isPublicRoute = publicRoutes.some((route) =>
+    pathname.startsWith(route)
+  )
+
+  if (isPublicRoute) {
     return NextResponse.next()
   }
 
-  // CSRF Protection for API routes
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
-    const isCsrfValid = await csrfProtection(req)
-    if (!isCsrfValid) {
-      return csrfErrorResponse()
-    }
+  // Protected routes - require authentication
+  const token = req.cookies.get('auth-token')?.value
+
+  if (!token) {
+    const loginUrl = new URL('/auth/login', req.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
-  // Rate Limiting
-  if (pathname.startsWith('/api/auth')) {
-    const rateLimit = await authRateLimit(req)
-    if (!rateLimit.allowed) return rateLimit.response
-  } else if (pathname.startsWith('/api/')) {
-    const rateLimit = await apiRateLimit(req)
-    if (!rateLimit.allowed) return rateLimit.response
-  }
-
-  // Allow public routes without authentication
-  if (PUBLIC_ROUTES.includes(pathname) || PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
-    return NextResponse.next()
-  }
-
-  // Allow dynamic routes (username pages) without authentication
-  if (DYNAMIC_ROUTES.some(route => route.test(pathname))) {
-    return NextResponse.next()
-  }
-
-  // Allow home page without authentication
-  if (pathname === '/') {
-    return NextResponse.next()
-  }
-
-  // For protected routes, check for valid session
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/') && !pathname.includes('/api/auth')) {
-    const sessionToken = req.cookies.get('sessionToken')?.value
-
-    if (!sessionToken) {
-      return NextResponse.redirect(new URL('/auth/login', req.url))
+  try {
+    const user = await verifyToken(token)
+    if (!user) {
+      const loginUrl = new URL('/auth/login', req.url)
+      return NextResponse.redirect(loginUrl)
     }
 
-    // Verify JWT signature using jose (Edge compatible)
-    // try {
-    //   await jwtVerify(sessionToken, JWT_SECRET)
-    //   // Token is valid
-    //   return NextResponse.next()
-    // } catch (error) {
-    //   console.error('Session verification error:', error)
-    //   // Token is invalid or expired
-    //   const response = NextResponse.redirect(new URL('/auth/login', req.url))
-    //   response.cookies.delete('sessionToken')
-    //   return response
-    // }
-    return NextResponse.next() // TEMPORARY DEBUG BYPASS
-  }
+    // Add user info to headers for API routes
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set('x-user-id', user.id)
+    requestHeaders.set('x-user-email', user.email)
 
-  return NextResponse.next()
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  } catch (error) {
+    console.error('Auth middleware error:', error)
+    const loginUrl = new URL('/auth/login', req.url)
+    return NextResponse.redirect(loginUrl)
+  }
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * - _next/image (image optimization)
+     * - favicon.ico (favicon)
+     * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
